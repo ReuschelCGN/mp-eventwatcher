@@ -31,14 +31,14 @@ To not put unnecessary load on cool community-made websites, the Plugin pulls da
 The Plugin then grabs that file and checks if an event is missing for you or changed information and then updates your database accordingly.
 
 ## Quest Resets
-Event Watcher can automatically adjust Quest scan times based on on-going events. It does it by checking the file above for events that reset Quests and then changes your walkerarea values with the event times.
+Event Watcher can automatically adjust Quest scan times based on on-going events. It does it by checking the file above for events that reset Quests and then changes your walkerarea values with the event times. Additionaly this branch can truncate the quests from MAD DB for rescan.
 
 ### Config options
 - **enable**: Whether or not to enable auto Quest resets
 default_time: The time you want Quest scans to start on normal days
 - **max_time**: Ignore reset times that are later than this
 - **check_timeframe**: Defines the hours in which the plugin checks quest resets
-- **reset_for**: Define event types and if you want quests to reset for their start, end or both.
+- **reset_for**: Define event types and if you want quests to reset and truncate DB for their start, end or both.
   - `event community-day` - if you want to rescan quests for every start and end of an event and cday
   - `event:start` - only rescan quests for event starts (my personal recommendation)
   - `community-day event:end` - Rescan quests for cday starts and ends, but only for event ends

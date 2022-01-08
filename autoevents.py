@@ -147,7 +147,7 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
     def _reset_all_quests(self):
         sql_query = "TRUNCATE trs_quest"
         dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
-        self._mad['logger'].info(f'EventWatcher: quests deleted by SQL query: {sql_query} return: {dbreturn}')
+        self._mad['logger'].info(f'EventWatcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}')
 
     def _reset_pokemon(self, eventchange_datetime_UTC):
         if self.__reset_pokemons_truncate:
@@ -166,20 +166,20 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
     def _check_reset_all_quests(self):
         #get current time to check for event start and event end
         now = datetime.now()
-        self._mad['logger'].info("EventWatcher: check quest changing events")
+        self._mad['logger'].info("EventWatcher: Check quest changing events")
         # check, if one of the pokemon event is just started or ended
         for event in self._quest_events:
             # event starts during last check?
             if "start" in self.__quests_reset_types.get(event.etype, []):
                 if event.check_event_start(self._last_quest_reset_check, now):
-                    self._mad['logger'].success(f'EventWatcher: event start detected for event {event.name} ({event.etype}) -> cleanup quests')
+                    self._mad['logger'].success(f'EventWatcher: Event start detected for event {event.name} ({event.etype}) -> cleanup quests')
                     # remove all quests from MAD DB
                     self._reset_all_quests()
                     break
             # event end during last check?
             if "end" in self.__quests_reset_types.get(event.etype, []):
                 if event.check_event_end(self._last_quest_reset_check, now):
-                    self._mad['logger'].success(f'EventWatcher: event end detected for event {event.name} ({event.etype}) -> cleanup quests')
+                    self._mad['logger'].success(f'EventWatcher: Event end detected for event {event.name} ({event.etype}) -> cleanup quests')
                     # remove all quests from MAD DB
                     self._reset_all_quests()
                     break
@@ -192,21 +192,21 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
             
             #cooldown check (only check for event start / end, if last pokemon reset is > __reset_pokemons_cooldown_in_s)
             if (self._last_pokemon_reset_date + timedelta(seconds=self.__reset_pokemons_cooldown_in_s)) > now:
-                self._mad['logger'].info(f"Event Watcher: no check of pokemon changing events, because of cooldown (last reset:{self._last_pokemon_reset_date})")
+                self._mad['logger'].info(f"Event Watcher: No check of pokemon changing events, because of cooldown (last reset:{self._last_pokemon_reset_date})")
                 return
-            self._mad['logger'].info("Event Watcher: check pokemon changing events")
+            self._mad['logger'].info("Event Watcher: Check pokemon changing events")
             # check, if one of the pokemon event is just started or ended
             for event in self._pokemon_events:
                 # event start during last 2 mainloop cycles?
                 if event["start"] <= now <= (event["start"] + timedelta(seconds=2*self.__sleep_mainloop_in_s)):
-                    self._mad['logger'].info(f'Event Watcher: event start detected for event type: {event["type"]} -> reset pokemon')
+                    self._mad['logger'].info(f'Event Watcher: Event start detected for event type: {event["type"]} -> reset pokemon')
                     # remove pokemon from MAD DB, which are scanned before event start and needs to be rescanned, adapt time from local to UTC time
                     self._reset_pokemon(event["start"] - timedelta(hours=self.tz_offset))
                     self._last_pokemon_reset_date = now
                     return
                 # event end during last 2 mainloop cycles?
                 if event["end"] <= now <= (event["end"] + timedelta(seconds=2*self.__sleep_mainloop_in_s)):
-                    self._mad['logger'].info(f'Event Watcher: event end detected for event type: {event["type"]} -> reset pokemon')
+                    self._mad['logger'].info(f'Event Watcher: Event end detected for event type: {event["type"]} -> reset pokemon')
                     # remove pokemon from MAD DB, which are scanned before event end and needs to be rescanned, adapt time from local to UTC time
                     self._reset_pokemon(event["end"] - timedelta(hours=self.tz_offset))
                     self._last_pokemon_reset_date = now

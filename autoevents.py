@@ -152,13 +152,13 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
             time = time + timedelta(hours=self.tz_offset)
         return time
 
-    def _reset_pokemon(self, eventchange_datetime):
+    def _reset_pokemon(self, eventchange_datetime_UTC):
         if self.__reset_pokemons_truncate:
             sql_query = "TRUNCATE pokemon"
             sql_args = None
         else:
             sql_query = "DELETE FROM pokemon WHERE last_modified < %s AND disappear_time > %s"
-            datestring = eventchange_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            datestring = eventchange_datetime_UTC.strftime("%Y-%m-%d %H:%M:%S")
             sql_args = (
                 datestring,
                 datestring
@@ -175,8 +175,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
             # event start/end during last check?
             if self._last_pokemon_reset_check < event["start"] <= now or self._last_pokemon_reset_check < event["end"] <= now:
                 self._mad['logger'].success(f'Event Watcher: Reset Pokemon (event start/end detected for event type: {event["type"]})')
-                # remove pokemon from MAD DB, which are scanned before event start and needs to be rescanned
-                self._reset_pokemon(event["start"])
+                # remove pokemon from MAD DB, which are scanned before event start and needs to be rescanned, adapt time from local to UTC time
+                self._reset_pokemon(event["start"] - timedelta(hours=self.tz_offset))
                 break
         self._last_pokemon_reset_check = now;
 
@@ -184,8 +184,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
        # sql_query = "TRUNCATE trs_quest"
        # dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
        # self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}') 
-        shreturn = subprocess.call(['./questreset.sh'])
-        self._mad['logger'].info(f'EventWatcher: quests deleted by questreset.sh return: {shreturn}')
+        sh_return = subprocess.call(['./questreset.sh'])
+        self._mad['logger'].info(f'EventWatcher: quests deleted by questreset.sh return: {sh_return}')
 
     def _check_quest_delete(self):
         #get current time to check for event start and event end

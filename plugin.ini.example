@@ -33,5 +33,9 @@ reset_for = event:start community-day
 enable_quest_delete = false
 ; quest delete option: define event types, which shall be considered for quest reschedule. Separate different eventtypes with whitespace. <eventtype>:'start', 'end' or ''(=both)
 delete_quests_for = event:start community-day
-; send info webhook on quest related event change webhook1,webhook2,webhook3
-delete_webhook = webhook1
+
+; send info webhook on quest related event change "webhook1","webhook2","webhook3"
+delete_webhook = "webhook1"
+; individual center Webhook Text for <eventtype>: Community-Day and/or Event
+cday_webhook_txt = Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!
+event_webhook_txt = Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!

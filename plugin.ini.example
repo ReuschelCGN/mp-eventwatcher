@@ -15,10 +15,11 @@ default_time = 02:00
 max_time = 12:00
 check_timeframe = 18-23
 reset_for = event:start community-day
-; Name Bashscript for execute 120 sec before Questreset
-reset_script = resetscript.sh
 
 ; option to enable quest delete, which drop MAD table trs_quest on quest related event change ['true' or 'false']
 enable_quest_delete = false
+; Name Bashscript for execute 120 sec before Questreset
+reset_script = resetscript.sh
+
 ; quest delete option: define event types, which shall be considered for quest reschedule. Separate different eventtypes with whitespace. <eventtype>:'start', 'end' or ''(=both)
 delete_quests_for = event:start community-day

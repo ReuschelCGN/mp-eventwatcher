@@ -181,9 +181,9 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         self._last_pokemon_reset_check = now;
 
     def _delete_all_quests(self):
-        #sql_query = "TRUNCATE trs_quest"
-        #dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
-        #self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}')
+        sql_query = "TRUNCATE trs_quest"
+        dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
+        self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}')
         # Send a message when a quests_delete_webhook is set
         if self.__quests_delete_webhook:
             for delete_webhook in self.__quests_delete_webhook:

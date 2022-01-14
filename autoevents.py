@@ -34,8 +34,6 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         self.templatepath = self._rootdir + "/template/"
         self.staticpath = self._rootdir + "/static/"
 
-        self.script = self._rootdir + "/questreset.sh"
-
         self._routes = [
             ("/eventwatcher", self.ewreadme_route),
         ]
@@ -106,6 +104,10 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self.__quests_delete_enable = self._pluginconfig.getboolean("Quest Resets", "enable_quest_delete", fallback=False)
                 delete_quests_for = self._pluginconfig.get("Quest Resets", "delete_quests_for", fallback="event")
                 self.__quests_delete_etypes = self._get_eventchanges_from_parameter(delete_quests_for)
+                # get Questreset Bash Script
+                self.__resetscript = self._pluginconfig.get("Quest Resets", "reset_script")
+                if resetscript:
+                    self.script = self._rootdir + self.__resetscript
             else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False
@@ -184,8 +186,9 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         self._last_pokemon_reset_check = now;
 
     def _delete_all_quests(self):
-        sh_return = call(['bash', self.script])
-        self._mad['logger'].info(f'EventWatcher: quests deleted by Scriptfile return: {sh_return}')
+        if self.script:
+            sh_return = call(['bash', self.script])
+            self._mad['logger'].info(f'EventWatcher: quests deleted by Scriptfile return: {sh_return}')
 
     def _check_quest_delete(self):
         #get current time to check for event start and event end
@@ -422,7 +425,7 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
 
     def _get_events(self):
         # get the event list from github
-        raw_events = requests.get("https://raw.githubusercontent.com/ReuschelCGN/pogoinfo/v2/active/events.json").json()
+        raw_events = requests.get("https://raw.githubusercontent.com/ReuschelCGN/pogoinfo/v2/active/events-test.json").json()
         self._spawn_events = []
         self._quest_events = []
         self._pokemon_events = []

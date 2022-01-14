@@ -103,6 +103,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 delete_quests_for = self._pluginconfig.get("Quest Resets", "delete_quests_for", fallback="event")
                 self.__quests_delete_etypes = self._get_eventchanges_from_parameter(delete_quests_for)
                 self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook")
+                self.__quests_delete_webhook = self.__quests_delete_webhook.replace(", ",",")
+                self.__quests_delete_webhook = self.__quests_delete_webhook.split(",")
             else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False

@@ -3,8 +3,6 @@ import requests
 import json
 import time
 import re
-import subprocess
-from subprocess import call
 
 from threading import Thread
 from flask import render_template, Blueprint, jsonify
@@ -104,10 +102,7 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self.__quests_delete_enable = self._pluginconfig.getboolean("Quest Resets", "enable_quest_delete", fallback=False)
                 delete_quests_for = self._pluginconfig.get("Quest Resets", "delete_quests_for", fallback="event")
                 self.__quests_delete_etypes = self._get_eventchanges_from_parameter(delete_quests_for)
-                # get Questreset Bash Script
-                self.__resetscript = self._pluginconfig.get("Quest Resets", "reset_script")
-                if resetscript:
-                    self.script = self._rootdir + self.__resetscript
+                self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook")
             else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False
@@ -186,9 +181,19 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         self._last_pokemon_reset_check = now;
 
     def _delete_all_quests(self):
-        if self.script:
-            sh_return = call(['bash', self.script])
-            self._mad['logger'].info(f'EventWatcher: quests deleted by Scriptfile return: {sh_return}')
+        #sql_query = "TRUNCATE trs_quest"
+        #dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
+        #self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}')
+        # Send a message when a quests_delete_webhook is set
+        if self.__quests_delete_webhook:
+            for delete_webhook in self.__quests_delete_webhook:
+                data = {
+                    "username": "MAD EventWatcher!",
+                    "avatar_url": "https://cdn.discordapp.com/emojis/845213545313468447.png",
+                    "content": ":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\nDas [Event {event_name}](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__.\nDie Neuen folgen auf diese Nachricht :point_down:\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:",
+                }
+                result = requests.post(delete_webhook, json=data)
+                self._mad['logger'].info(f'EventWatcher: Webhook {delete_webhook} send - return: {result}')
 
     def _check_quest_delete(self):
         #get current time to check for event start and event end
@@ -425,7 +430,7 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
 
     def _get_events(self):
         # get the event list from github
-        raw_events = requests.get("https://raw.githubusercontent.com/ReuschelCGN/pogoinfo/v2/active/events-test.json").json()
+        raw_events = requests.get("https://raw.githubusercontent.com/ccev/pogoinfo/v2/active/events.json").json()
         self._spawn_events = []
         self._quest_events = []
         self._pokemon_events = []

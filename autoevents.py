@@ -4,6 +4,7 @@ import json
 import time
 import re
 import subprocess
+from subprocess import call
 
 from threading import Thread
 from flask import render_template, Blueprint, jsonify
@@ -32,6 +33,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
 
         self.templatepath = self._rootdir + "/template/"
         self.staticpath = self._rootdir + "/static/"
+
+        self.script = self._rootdir + "/questreset.sh"
 
         self._routes = [
             ("/eventwatcher", self.ewreadme_route),
@@ -181,11 +184,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         self._last_pokemon_reset_check = now;
 
     def _delete_all_quests(self):
-       # sql_query = "TRUNCATE trs_quest"
-       # dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
-       # self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}') 
-        sh_return = subprocess.call(['./questreset.sh'])
-        self._mad['logger'].info(f'EventWatcher: quests deleted by questreset.sh return: {sh_return}')
+        sh_return = call(['bash', self.script])
+        self._mad['logger'].info(f'EventWatcher: quests deleted by Scriptfile return: {sh_return}')
 
     def _check_quest_delete(self):
         #get current time to check for event start and event end

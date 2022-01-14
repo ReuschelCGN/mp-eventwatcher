@@ -102,9 +102,11 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self.__quests_delete_enable = self._pluginconfig.getboolean("Quest Resets", "enable_quest_delete", fallback=False)
                 delete_quests_for = self._pluginconfig.get("Quest Resets", "delete_quests_for", fallback="event")
                 self.__quests_delete_etypes = self._get_eventchanges_from_parameter(delete_quests_for)
-                self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook")
+                self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook", fallback='')
                 self.__quests_delete_webhook = self.__quests_delete_webhook.replace(", ",",")
                 self.__quests_delete_webhook = self.__quests_delete_webhook.split(",")
+                self.__cday_webhook_txt = self._pluginconfig.get("Quest Resets", "cday_webhook_txt", fallback='Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:')
+                self.__event_webhook_txt = self._pluginconfig.get("Quest Resets", "event_webhook_txt", fallback='Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:')
             else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False
@@ -186,16 +188,6 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
         sql_query = "TRUNCATE trs_quest"
         dbreturn = self._mad['db_wrapper'].execute(sql_query, commit=True)
         self._mad['logger'].info(f'Event Watcher: Quests deleted by SQL query: {sql_query} return: {dbreturn}')
-        # Send a message when a quests_delete_webhook is set
-        if self.__quests_delete_webhook:
-            for delete_webhook in self.__quests_delete_webhook:
-                data = {
-                    "username": "MAD EventWatcher!",
-                    "avatar_url": "https://cdn.discordapp.com/emojis/845213545313468447.png",
-                    "content": ":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\nDas [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__.\nDie Neuen folgen auf diese Nachricht :point_down:\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:",
-                }
-                result = requests.post(delete_webhook, json=data)
-                self._mad['logger'].info(f'EventWatcher: Webhook {delete_webhook} send - return: {result}')
 
     def _check_quest_delete(self):
         #get current time to check for event start and event end
@@ -212,6 +204,20 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self._mad['logger'].success(f'Event Watcher: Reset Quests (event start/end detected for event type: {event["type"]})')
                 # remove all quests from MAD DB
                 self._delete_all_quests()
+                # Send a message when a quests_delete_webhook is set
+                if self.__quests_delete_webhook:
+                    for delete_webhook in self.__quests_delete_webhook:
+                        if event["type"] == "community-day":
+                            whmessage = ":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n" + self.__cday_webhook_txt + "\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
+                        else:
+                            whmessage = ":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n" + self.__event_webhook_txt + "\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
+                        data = {
+                            "username": "MAD EventWatcher!",
+                            "avatar_url": "https://cdn.discordapp.com/emojis/845213545313468447.png",
+                            "content": f"{whmessage}",
+                        }
+                        result = requests.post(delete_webhook, json=data)
+                        self._mad['logger'].info(f'EventWatcher: Webhook {delete_webhook} send - return: {result}')
                 # self._mad["mapping_manager"].update()
                 break
         self._last_quest_reset_check = now

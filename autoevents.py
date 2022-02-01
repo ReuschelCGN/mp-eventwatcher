@@ -105,8 +105,8 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook", fallback='')
                 self.__quests_delete_webhook = self.__quests_delete_webhook.replace(", ",",")
                 self.__quests_delete_webhook = self.__quests_delete_webhook.split(",")
-                self.__cday_webhook_txt = self._pluginconfig.get("Quest Resets", "cday_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:")
-                self.__event_webhook_txt = self._pluginconfig.get("Quest Resets", "event_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:")
+                self.__cday_webhook_txt = self._pluginconfig.get("Quest Resets", f"cday_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:")
+                self.__event_webhook_txt = self._pluginconfig.get("Quest Resets", f"event_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:")
             else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False

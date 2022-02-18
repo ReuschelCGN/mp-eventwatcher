@@ -102,12 +102,14 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 self.__quests_delete_enable = self._pluginconfig.getboolean("Quest Resets", "enable_quest_delete", fallback=False)
                 delete_quests_for = self._pluginconfig.get("Quest Resets", "delete_quests_for", fallback="event")
                 self.__quests_delete_etypes = self._get_eventchanges_from_parameter(delete_quests_for)
-                self.__quests_delete_webhook = self._pluginconfig.get("Quest Resets", "delete_webhook", fallback='')
+                self.__quests_delete_webhook = self._pluginconfig.get("Reset Webhook", "delete_webhook", fallback='')
                 self.__quests_delete_webhook = self.__quests_delete_webhook.replace(", ",",")
                 self.__quests_delete_webhook = self.__quests_delete_webhook.split(",")
-                self.__cday_webhook_txt = self._pluginconfig.get("Quest Resets", "cday_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!")
-                self.__event_webhook_txt = self._pluginconfig.get("Quest Resets", "event_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!")
-            else:
+                self.__cday_webhook_txt = self._pluginconfig.get("Reset Webhook", "cday_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!")
+                self.__cday_webhook_txt = self.__cday_webhook_txt.replace("\\n", "\n")
+                self.__event_webhook_txt = self._pluginconfig.get("Reset Webhook", "event_webhook_txt", fallback= f"Ein [Event](https://leekduck.com/events/) mit ***geänderten Quests*** startet oder endet!")
+                self.__event_webhook_txt = self.__event_webhook_txt.replace("\\n", "\n")
+                else:
                 self.__quests_reset_enable = False
                 self.__quests_delete_enable = False
 
@@ -208,13 +210,13 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
                 if self.__quests_delete_webhook:
                     for delete_webhook in self.__quests_delete_webhook:
                         if event["type"] == "community-day":
-                            whmessage = f":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n" + self.__cday_webhook_txt + "\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
+                            whmessage = f":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n{self.__cday_webhook_txt}\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
                         else:
-                            whmessage = f":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n" + self.__event_webhook_txt + "\n\nDas heisst alle Quest oberhalb dieser Nachricht :point_up: sind __veraltet__ und wurden entfernt.\nDie neuen Quests folgen auf diese Nachricht :point_down:\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
+                            whmessage = f":no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry::regional_indicator_o::regional_indicator_l::regional_indicator_d::no_entry::no_entry::no_entry:\n\n{self.__event_webhook_txt}\n\n:warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning::regional_indicator_n::regional_indicator_e::regional_indicator_w::warning::warning::warning:"
                         data = {
                             "username": "MAD EventWatcher!",
                             "avatar_url": "https://cdn.discordapp.com/emojis/845213545313468447.png",
-                            "content": "{whmessage}",
+                            "content": f"{whmessage}",
                         }
                         result = requests.post(delete_webhook, json=data)
                         self._mad['logger'].info(f'EventWatcher: Webhook {delete_webhook} send - return: {result}')

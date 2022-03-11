@@ -468,7 +468,9 @@ class EventWatcher(mapadroid.utils.pluginBase.Plugin):
 
             for bonus in raw_event["bonuses"]:
                 if bonus.get("template", "") == "longer-lure":
-                    event_dict["lure"] = bonus["value"]*60
+                    # get bonus duration time in hour. If not available use default=3
+                    bonus_lure_duration_hours = bonus.get("value", 3)
+                    event_dict["lure"] = bonus_lure_duration_hours*60
                     break
             # get events with changed spawnpoints
             if raw_event["has_spawnpoints"] or event_dict.get("lure"):
